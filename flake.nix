@@ -1,30 +1,29 @@
 {
-  inputs = {
-    pkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  description = "Application packaged using poetry2nix";
+
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.poetry2nix = {
+    url = "github:nix-community/poetry2nix";
+    inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {self, pkgs}@inp:
-    let
+  outputs = { self, nixpkgs, flake-utils, poetry2nix }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
+        inherit (poetry2nix.legacyPackages.${system}) mkPoetryApplication;
+        pkgs = nixpkgs.legacyPackages.${system};
+        app = mkPoetryApplication { projectDir = self; };
+      in
+        {
+          packages = {
+            myapp = app;
+            default = self.packages.${system}.myapp;
+          };
 
-      # Generate a user-friendly version number.
-      version = builtins.substring 0 8 self.lastModifiedDate;
-
-      # System types to support.
-      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
-
-      # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
-      forAllSystems = pkgs.lib.genAttrs supportedSystems;
-
-      # Nixpkgs instantiated for supported system types.
-      nixpkgsFor = forAllSystems (system: import pkgs { inherit system; });
-    in
-    {
-      # enter this python environment by executing `nix shell .`
-      devShell = forAllSystems (system:
-        let
-          pkgs = nixpkgsFor.${system};
-        in
-          import ./default.nix { inherit pkgs; }
-      );
-    };
+          devShells.default = pkgs.mkShell {
+            packages = [ poetry2nix.packages.${system}.poetry pkgs.python311 ];
+          };
+        });
 }
