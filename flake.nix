@@ -27,17 +27,17 @@
                 );
             });
         };
-        app = mkPoetryApplication appSettings;
+        #app = mkPoetryApplication appSettings;
         shell = (mkPoetryEnv appSettings).env.overrideAttrs (oldAttrs: {
           buildInputs = [ poetry2nix.packages.${system}.poetry ];
         })
         ;
       in
         {
-          packages = {
-            myapp = app;
-            default = self.packages.${system}.myapp;
-          };
+          #packages = {
+          #  stampy = app;
+          #  default = self.packages.${system}.stampy;
+          #};
 
           devShells.default = shell;
         });
