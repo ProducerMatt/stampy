@@ -1,21 +1,24 @@
 {
   inputs = {
-    mach-nix.url = "github:DavHau/mach-nix/3.5.0";
+    pkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = {self, nixpkgs, mach-nix }@inp:
+  outputs = {self, pkgs}@inp:
     let
-      l = nixpkgs.lib // builtins;
+      l = pkgs.lib // builtins;
       supportedSystems = [ "x86_64-linux" "aarch64-darwin" ];
-      forAllSystems = f: l.genAttrs supportedSystems
-        (system: f system (import nixpkgs {inherit system;}));
+      #forAllSystems = f: l.genAttrs supportedSystems
+      #  (system: f system (import pkgs {inherit system;}));
+      forAllSystems = pkgs.lib.genAttrs supportedSystems;
+      nixpkgsFor = forAllSystems (system: import pkgs { inherit system; });
     in
     {
       # enter this python environment by executing `nix shell .`
-      defaultPackage = forAllSystems (system: pkgs: mach-nix.lib."${system}".mkPython {
-        requirements = ''
-          discord
-        '';
-      });
+      devShell = forAllSystems (system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        import ./default.nix { inherit pkgs; pythonPackages = pkgs.python311Packages; }
+      );
     };
 }
