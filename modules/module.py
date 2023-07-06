@@ -1,30 +1,27 @@
-from typing import Optional, Callable
+from typing import Any, Optional, Callable, Iterable, Union
 from dataclasses import dataclass, field
 
 import discord
 
-
+@dataclass
 class Validator:
-    self.description: str
-    self.f: Callable[[str], bool]
+    description: str
+    f: Callable[[Any], bool]
 
-    def __init__(self, description: str, f: Callable):
-        self.description = description
-        self.f = f
-    def __repr__(self):
+    def __str__(self):
         return self.description
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self.__repr__ == other.__repr__
+            return self.__str__ == other.__str__
         else:
             return False
 
 
 @dataclass
 class Option:
-    self.name: str
-    self.validator: Optional[Validator] = None
+    name: str
+    validator: Optional[Validator] = None
 
     def __repr__(self):
         name = self.name
