@@ -20,6 +20,7 @@
           python = pkgs.python39;
           overrides = defaultPoetryOverrides.extend
             (self: super: {
+              # package databases-0.7 is broken with sqlalchemy 2
               flask = pythonPkgs.flask;
               gitpython = pythonPkgs.gitpython;
               black = pythonPkgs.black;
