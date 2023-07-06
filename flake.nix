@@ -25,6 +25,36 @@
                     buildInputs = (old.buildInputs or [ ]) ++ [ super.setuptools ];
                   }
                 );
+              codaio =
+                let
+                  verinfo = {
+                    rev = "424d226";
+                    owner = "Blasterai";
+                    repo = "codaio";
+                    hash = "sha256-t/OSWzXtx+5ZdnL2QTnVLILoh4+rtpHMAcU4wm0tT9U=";
+                  };
+                  src = pkgs.fetchFromGitHub {
+                    inherit (verinfo) owner repo rev hash;
+                  };
+                in
+                  mkPoetryPackages {
+                    projectDir = src;
+                  };
+              helicone =
+                let
+                  verinfo = {
+                    rev = "afb1ae3";
+                    owner = "Helicone";
+                    repo = "helicone";
+                    hash = "";
+                  };
+                  src = pkgs.fetchFromGitHub {
+                    inherit (verinfo) owner repo rev hash;
+                  };
+                in
+                  mkPoetryPackages {
+                    projectDir = src + ./helicone-python;
+                  };
             });
         };
         #app = mkPoetryApplication appSettings;
