@@ -12,14 +12,30 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         # see https://github.com/nix-community/poetry2nix/tree/master#api for more functions and examples.
-        inherit (poetry2nix.legacyPackages.${system}) mkPoetryApplication mkPoetryEnv defaultPoetryOverrides;
+        inherit (poetry2nix.legacyPackages.${system}) mkPoetryPackages mkPoetryEnv defaultPoetryOverrides;
         pkgs = nixpkgs.legacyPackages.${system};
+        pythonPkgs = pkgs.python39Packages;
         appSettings = {
           projectDir = self;
-          python = pkgs.python311;
+          python = pkgs.python39;
           overrides = defaultPoetryOverrides.extend
             (self: super: {
-              discord-py = super.discord-py.overridePythonAttrs
+              flask = pythonPkgs.flask;
+              gitpython = pythonPkgs.gitpython;
+              black = pythonPkgs.black;
+              google-api-python-client = pythonPkgs.google-api-python-client;
+              google-auth-oauthlib = pythonPkgs.google-auth-oauthlib;
+              jellyfish = pythonPkgs.jellyfish;
+              lxml = pythonPkgs.lxml;
+              numpy = pythonPkgs.numpy;
+              openai = pythonPkgs.openai;
+              pandas = pythonPkgs.pandas;
+              psutil = pythonPkgs.psutil;
+              python-dotenv = pythonPkgs.python-dotenv;
+              slack-sdk = pythonPkgs.slack-sdk;
+              structlog = pythonPkgs.structlog;
+              transformers = pythonPkgs.transformers;
+              discord-py = pythonPkgs.discordpy.overridePythonAttrs
                 (
                   old: {
                     buildInputs = (old.buildInputs or [ ]) ++ [ super.setuptools ];
